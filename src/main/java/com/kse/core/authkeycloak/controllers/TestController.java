@@ -29,24 +29,30 @@ public class TestController {
     }
 
    @GetMapping("/user")
-public ResponseEntity<String> getUser(Principal principal) {
-    JwtAuthenticationToken token = (JwtAuthenticationToken) principal;
-    String userName = (String) token.getTokenAttributes().get("name");
-    String userEmail = (String) token.getTokenAttributes().get("email");
-
-    List<String> roles = convertToList(token.getTokenAttributes().get("roles"));
-    List<String> groups = convertToList(token.getTokenAttributes().get("groups"));
-    List<String> realmAccess = convertToList(token.getTokenAttributes().get("realm_access"));
-    List<String> resourceAccess = convertToList(token.getTokenAttributes().get("resource_access"));
-    List<String> scope = convertToList(token.getTokenAttributes().get("scope"));
-    List<String> user = convertToList(token.getTokenAttributes().get("user"));
-
-    return ResponseEntity.ok(
-            "Hello User \nUser Name : " + userName + "\nUser Email : " + userEmail + "\nRoles : " + roles
-                    + "\nGroups : " + groups + "\nRealm Access : " + realmAccess + "\nResource Access : "
-                    + resourceAccess + "\nScope : " + scope + "\nUser : " + user
-    );
-}
+   public ResponseEntity<Map<String, Object>> getUser(Principal principal) {
+       JwtAuthenticationToken token = (JwtAuthenticationToken) principal;
+       return ResponseEntity.ok(token.getTokenAttributes());
+   }
+//public ResponseEntity<String ,Object> getUser(Principal principal) {
+//    JwtAuthenticationToken token = (JwtAuthenticationToken) principal;
+////    String userName = (String) token.getTokenAttributes().get("name");
+////    String userEmail = (String) token.getTokenAttributes().get("email");
+////
+////    List<String> roles = convertToList(token.getTokenAttributes().get("roles"));
+////    List<String> groups = convertToList(token.getTokenAttributes().get("groups"));
+////    List<String> realmAccess = convertToList(token.getTokenAttributes().get("realm_access"));
+////    List<String> resourceAccess = convertToList(token.getTokenAttributes().get("resource_access"));
+////    List<String> scope = convertToList(token.getTokenAttributes().get("scope"));
+////    List<String> user = convertToList(token.getTokenAttributes().get("user"));
+//
+//       return ResponseEntity.ok(token.getTokenAttributes());
+//
+////    return ResponseEntity.ok(
+////            "Hello User \nUser Name : " + userName + "\nUser Email : " + userEmail + "\nRoles : " + roles
+////                    + "\nGroups : " + groups + "\nRealm Access : " + realmAccess + "\nResource Access : "
+////                    + resourceAccess + "\nScope : " + scope + "\nUser : " + user
+////    );
+//}
 
 @SuppressWarnings("unchecked")
 private List<String> convertToList(Object attribute) {

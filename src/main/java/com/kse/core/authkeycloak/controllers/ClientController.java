@@ -31,8 +31,7 @@ public class ClientController {
     //    	@Autowired
     private final ClientLogic clientLogic;
 
-    @Autowired
-    ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
 
     //	@Autowired

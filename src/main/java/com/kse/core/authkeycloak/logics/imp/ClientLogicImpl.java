@@ -166,7 +166,6 @@ public class ClientLogicImpl implements ClientLogic {
 
 	@Value("${keycloak.update-url}")
 	private String kcUpdateUrl;
-//
 	@Value("${keycloak.realm-container-id}")
 	private String kcRealmContainerId;
 
@@ -368,7 +367,7 @@ public class ClientLogicImpl implements ClientLogic {
 			log.debug("keycloackUserId: "+keycloackUserId);
 			if (keycloackUserId == null) {
 				log.error("Erreur lors de la creation du client dans keycloak");
-				return null;
+				 throw new ResourceNotFoundException("Erreur lors de la creation du client dans keycloak");
 			}else {
 				log.info("Client créé dans keycloak avec succès");
 				Timestamp date = dateTools.DateTimeStamp();
@@ -603,32 +602,50 @@ public List<RoleRepresentation> getUserRoles(String userId) {
 
 	@Override
 	public ResponseEntity<?> getUserTokenV2(String username, String password, HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+
 		LoginRequestDto loginRequest = new LoginRequestDto();
-		loginRequest.setUsername(username);
+
+		Client client = getClientByEmail(username) != null ? getClientByEmail(username) : getClientByContact(username);
+
+		if (username.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$") ){
+
+			if (Objects.isNull(client)) {
+				throw new ResourceNotFoundException("Aucun client trouvé avec l'email: " + username);
+			}
+			loginRequest.setUsername(username);
+//			String deviceId = servletRequest.getHeader(DEVICE_ID);
+		}else {
+
+			if (Objects.isNull(client)) {
+				throw new ResourceNotFoundException("Aucun client trouvé avec le contact: " + username);
+			}
+			loginRequest.setUsername(client.getClientemail());
+		}
+
+
 		loginRequest.setPassword(password);
-		Client client = getClientByContact(username);
+
 		log.info("loginRequest : {}", loginRequest);
 		// Vérifier le mot de passe localement
-		if (!verifyPasswordLocally(username, password)) {
-			log.error("Le mot de passe est incorrect");
-			throw new ResourceNotFoundException("Le mot de passe est incorrect");
-		}
-		if (Objects.nonNull(client)) {
+//		if (!verifyPasswordLocally(username, password)) {
+//			log.error("Le mot de passe est incorrect");
+//			throw new ResourceNotFoundException("Le mot de passe est incorrect");
+//		}
+
 			try {
-				TokenDto tokenDto = keycloakUtil.getAccessToken(loginRequest, restTemplate, GRANT_TYPE_PASSWORD,
-						kcClientId,
-						kcClientSecret, kcGetTokenUrl);
-				servletResponse.addHeader(ACCESS_TOKEN, tokenDto.getAccess_token());
-				servletResponse.addHeader(EXPIRES_IN, String.valueOf(tokenDto.getExpires_in()));
+//				TokenDto tokenDto = keycloakUtil.getAccessToken(loginRequest, restTemplate, GRANT_TYPE_PASSWORD,
+//						kcClientId,
+//						kcClientSecret, kcGetTokenUrl);
+//				servletResponse.addHeader(ACCESS_TOKEN, tokenDto.getAccess_token());
+//				servletResponse.addHeader(EXPIRES_IN, String.valueOf(tokenDto.getExpires_in()));
 				Map<String, Object> response = new HashMap<>();
 				response.put("client", client);
-				response.put("accessTokenResponse", tokenDto);
+//				response.put("accessTokenResponse", tokenDto);
 				return ResponseEntity.ok().body(response);
 			} catch (Exception e) {
 				log.error("Failed to get user token: username={}; error={}", username, e.getMessage());
 				throw new RuntimeException("Failed to get user token", e);
 			}
-		}throw new ResourceNotFoundException("Aucun client trouvé avec le contact: " + username);
 
 	}
 

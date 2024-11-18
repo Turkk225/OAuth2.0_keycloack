@@ -92,7 +92,6 @@ public class KeycloakUtil {
         MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
         requestBody.add("grant_type", GRANT_TYPE_PASSWORD);
         requestBody.add("client_id", "admin-cli");
-        // requestBody.add("client_secret", kcClientSecret);
         requestBody.add("username", "admin");
         requestBody.add("password", "admin");
         requestBody.add("scope", "openid");
